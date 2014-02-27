@@ -8,7 +8,7 @@ import re
 running = True
 
 s = serial.Serial('/dev/ttyUSB0', 38400)
-s.write('AI1;')
+s.write('AI2;')
 s.flushInput()
 
 buff = ''
@@ -28,7 +28,7 @@ def twos_comp(val, bits):
 def handle_data_new(transfer):
     output = struct.unpack('BbBBBB', transfer.getBuffer())
     print output[1]
-    s.write('FB;')
+    
     match = None
     data = ''
     while not match:
@@ -40,6 +40,7 @@ def handle_data_new(transfer):
     print "New freq: ", new_freq
     const = 10 * output[1]
     s.write('FB' + zeros + str(int(new_freq) + const) + ';');
+    s.write('FB;')
     return True
 
 def handle_data(transfer):
@@ -86,7 +87,7 @@ def main():
         transfer.setCallback(helper)
 
         thread = Thread(target=process_events, args=(context,)).start()
-
+        s.write('FB;')
         transfer.submit()
         while True:
             pass
